@@ -33,7 +33,7 @@ DECLARE @week_begin_date_key as INT
 DECLARE @calendar_year_month_number as TINYINT
 DECLARE @month_name as VARCHAR(9)
 DECLARE @month_abbreviation as VARCHAR(3)
-DECLARE @calendar_quarter as TINYINT
+DECLARE @calendar_quarter as VARCHAR(2)
 DECLARE @calendar_year_quarter as SMALLINT
 DECLARE @calendar_year as SMALLINT
 DECLARE @month_end_flag as CHAR(1)
@@ -41,11 +41,11 @@ DECLARE @same_day_1_year_ago SMALLDATETIME
 DECLARE @same_day_90_days_ago SMALLDATETIME
 DECLARE @same_day_60_days_ago SMALLDATETIME
 DECLARE @same_day_30_days_ago SMALLDATETIME
-DECLARE @biennium as INT
+DECLARE @biennium as VARCHAR(12)
 DECLARE @biennium_year as TINYINT
 DECLARE @fiscal_year as SMALLINT
-DECLARE @fiscal_quarter as TINYINT
-DECLARE @fiscal_year_quarter as SMALLINT
+DECLARE @fiscal_quarter as VARCHAR(3)
+DECLARE @fiscal_year_quarter as VARCHAR(7)
 DECLARE @fiscal_month_number as TINYINT
 DECLARE @fiscal_year_day_number as INT
 DECLARE @fiscal_year_week_number as INT
@@ -56,6 +56,7 @@ DECLARE @date_key_str as VARCHAR(8)
 DECLARE @week_begin_date_key_str as VARCHAR(8)
 DECLARE @fiscal_year_1_start_date as SMALLDATETIME
 DECLARE @fiscal_year_1_end_date as SMALLDATETIME
+DECLARE @calendar_quarter_number as TINYINT
 
 -- Loop over the date count and insert a row for each date in the biennium
 WHILE @current_date_count < @date_count
@@ -106,13 +107,14 @@ BEGIN
 	SET @month_abbreviation = LEFT(@month_name,3)
 
 	-- Add calendar quarter
-	SET @calendar_quarter = DATEPART(quarter,@calendar_date)
+	SET @calendar_quarter_number = DATEPART(quarter,@calendar_date)
+	SET @calendar_quarter = 'Q' + CAST(DATEPART(quarter,@calendar_date) as VARCHAR(1))
 
 	-- Add calendar year
 	SET @calendar_year = DATEPART(year, @calendar_date)
 
 	-- Add calendar year and quarter (i.e. YYYYQ)
-	SET @calendar_year_quarter = CAST(STR(@calendar_year,4,0) + STR(@calendar_quarter,1,0) as SMALLINT)
+	SET @calendar_year_quarter = CAST(STR(@calendar_year,4,0) + STR(@calendar_quarter_number,1,0) as SMALLINT)
 
 	-- Add month end flag
 	IF @calendar_date = EOMONTH(@calendar_date)
@@ -129,11 +131,11 @@ BEGIN
 	-- Add biennium 
 	IF @calendar_year %2 > 0 -- year is odd
 		IF DATEPART(dayofyear,@calendar_date) < DATEPART(dayofyear,CAST(CONCAT(STR(@calendar_year,4,0),'-07-01') as SMALLDATETIME))
-			SET @biennium = CAST(STR(@calendar_year-2,4,0) + STR(@calendar_year,4,0) as INT)
+			SET @biennium = 'BI ' + CAST(STR(@calendar_year-2,4,0) + '-' + STR(@calendar_year,4,0) as VARCHAR(9))
 		ELSE
-			SET @biennium = CAST(STR(@calendar_year,4,0) + STR(@calendar_year + 2,4,0) as INT)
+			SET @biennium = 'BI ' + CAST(STR(@calendar_year,4,0) + '-' + STR(@calendar_year + 2,4,0) as VARCHAR(9))
 	ELSE -- year is even
-		SET @biennium = CAST(STR(@calendar_year - 1,4,0) + STR(@calendar_year + 1,4,0) as INT)
+		SET @biennium = 'BI ' + CAST(STR(@calendar_year - 1,4,0) + '-' + STR(@calendar_year + 1,4,0) as VARCHAR(9))
 
 	-- Add biennium year (either year 1 or year 2 of the biennium)
 	IF @calendar_year %2 > 0 -- year is odd
@@ -160,13 +162,13 @@ BEGIN
 			SET @fiscal_year = @calendar_year + 1
 
 	-- Add fiscal quarter
-	IF @calendar_quarter IN (1,2)
-		SET @fiscal_quarter = @calendar_quarter + 2
+	IF @calendar_quarter_number IN (1,2)
+		SET @fiscal_quarter = 'FQ' + CAST(@calendar_quarter_number + 2 as VARCHAR(2))
 	ELSE
-		SET @fiscal_quarter = @calendar_quarter - 2
+		SET @fiscal_quarter = 'FQ' + CAST(@calendar_quarter_number - 2 as VARCHAR(2))
 
 	-- Add fiscal year and quarter (YYYYQ)
-	SET @fiscal_year_quarter = CAST(STR(@fiscal_year,4,0) + STR(@fiscal_quarter,1,0) as SMALLINT)
+	SET @fiscal_year_quarter = CAST(STR(@fiscal_year,4,0) + @fiscal_quarter as VARCHAR(7))
 
 	-- Add fiscal month number
 	IF @biennium_year = 1

@@ -5,7 +5,8 @@ When dealing with financial data in WA for budgeting, accounting, and treasury p
 
 For the SQL script, access the file directly. I have also included the text of the Power Query custom dimDate function below or you can access it in the .pbix file.
 
-'//Create Date Dimension
+```
+//Create Date Dimension
 (BienniumStartDate as date, BienniumEndDate as date)=>
 
 let
@@ -137,4 +138,5 @@ let
     , Int8.Type)
 
 in
-    WeekNumberInFiscalYear'
+    WeekNumberInFiscalYear
+```

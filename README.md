@@ -3,7 +3,7 @@ Public agencies typically use a fiscal calendar different from the calendar year
 
 When dealing with financial data in WA for budgeting, accounting, and treasury purposes, it's important to be able to express the data in accordance with the fiscal calendar. This repository contains both SQL and Power M Query scripts to implement a fiscal date table for Washington State financial reporting and analytic purposes. Note that this is a simple date table for use in reporting cash-based financials. It does not replicate Washington's encumbrance accounting date structures (e.g., AFRS FM 25, phase-based cutoffs, etc.), nor does it include operational dates (e.g., it does not account for holidays). 
 
-For the SQL script, access the file directly. I have also included the text of the Power Query custom dimDate function below or you can access it in the .pbix file.
+For the SQL script, access the file directly. I have also included the text of the Power Query custom dimDate function below or you can access it in the .pbix file. Note that WA uses a 6/30 fiscal year end date, but the script can be used for any fiscal year end by adjusting the start and end dates. Also, you can easily add or remove features if the ones below aren't exactly what you need.
 
 ```
 //Create Date Dimension

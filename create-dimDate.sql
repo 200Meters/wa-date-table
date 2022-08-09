@@ -1,5 +1,5 @@
 /**
-DDL to create dimDate table for State of Washington Fiscal years
+DDL to create dimDate table for State of Washington Fiscal years based on a 6/30 fiscal year end
 **/
 
 
